@@ -24,7 +24,7 @@ with st.expander('Data Visualiation'):
 with st.sidebar:
   st.header('Input Features')
   island=st.selectbox('Island',('Biscoe','Dream','Togersen'))
-  gender=st.selectbox('Gender',('Male','Female'))
+  sex=st.selectbox('Gender',('Male','Female'))
   bill_length_mm=st.slider('Bill_length (mm)',32.1,59.6,43.9)
   bill_depth_mm=st.slider('Bill_depth (mm)',13.1,21.5,17.2)
   flipper_length_mm=st.slider('Flipper_length (mm)',172.0,231.0,201.0)
@@ -36,7 +36,7 @@ data={'island':island,
       'bill_depth_mm':bill_depth_mm,
       'flipper_length_mm':flipper_length_mm,
       'body_mass_g':body_mass_g,
-      'gender':gender}
+      'sex':sex}
 input_df=pd.DataFrame(data,index=[0])
 input_penguins=pd.concat([input_df,X],axis=0)
 
