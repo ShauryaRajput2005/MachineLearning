@@ -22,7 +22,7 @@ with st.expander('Data Visualiation'):
 
 # Data Preparations
 with st.sidebar:
-  st.header('Input Fearures')
+  st.header('Input Features')
   island=st.selectbox('Island',('Biscoe','Dream','Togersen'))
   gender=st.selectbox('Gender',('Male','Female'))
   bill_length_mm=st.slider('Bill_length (mm)',32.1,59.6,43.9)
