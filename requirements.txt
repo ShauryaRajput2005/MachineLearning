@@ -1,4 +1,4 @@
-dstreamlit
-Numpy 
-Pandas
-Scikit-Learn
+streamlit
+numpy 
+pandas
+scikit-learn
