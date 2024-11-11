@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 st.markdown("""
 <style>
-.eyeqlp53.st-emotion-cache-1b2ybts.ex0cdmw0{
+.st-emotion-cache-1b2ybts{
   visibility:hidden;
   }
 </style>
