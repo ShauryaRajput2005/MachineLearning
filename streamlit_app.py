@@ -10,7 +10,8 @@ st.markdown("""
   visibility:hidden;
   }
 </style>
-""",allow_unsafe_html=True)
+""", allow_unsafe_html=True)
+
 
 st.title('🤖 Machine Learning App')
 
