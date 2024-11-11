@@ -3,6 +3,15 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
+
+st.markdown("""
+<style>
+.eyeqlp53.st-emotion-cache-1b2ybts.ex0cdmw0{
+  visibility:hidden;
+  }
+</style>
+""",allow_unsafe_html=True}
+
 st.title('🤖 Machine Learning App')
 
 st.info('This is app builds a machine learning model!')
