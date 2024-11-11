@@ -2,17 +2,15 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-
-
-st.markdown("""
-<style>
-.st-emotion-cache-1b2ybts{
-  visibility:hidden;
-  }
-</style>
-""", allow_unsafe_html=True)
-
-
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            ._terminalButton_rix23_138{visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
 st.title('🤖 Machine Learning App')
 
 st.info('This is app builds a machine learning model!')
