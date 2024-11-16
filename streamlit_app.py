@@ -5,10 +5,12 @@ import matplotlib.pyplot as plt
 from statsmodels.tsa.seasonal import seasonal_decompose
 hide_st_style = """
             <style>
-            eyeqlp53_st-emotion-cache-1b2ybts_ex0cdmw0{visibility: hidden;}
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
             </style>
             """
-st.markdown(hide_st_style, unsafe_allow_html=True)
+st.markdown(hide_st_style, unsafe_allow_html=True
 
 # Set up the page layout
 st.set_page_config(page_title="Advanced Influencer Impact Dashboard", layout="wide")
