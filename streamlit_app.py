@@ -3,6 +3,12 @@ import pandas as pd
 import plotly.express as px
 import matplotlib.pyplot as plt
 from statsmodels.tsa.seasonal import seasonal_decompose
+hide_st_style = """
+            <style>
+            .eyeqlp53 st-emotion-cache-1b2ybts ex0cdmw0{visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # Set up the page layout
 st.set_page_config(page_title="Advanced Influencer Impact Dashboard", layout="wide")
