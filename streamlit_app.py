@@ -1,39 +1,30 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import numpy as np
-from statsmodels.tsa.seasonal import seasonal_decompose
 import matplotlib.pyplot as plt
-import seaborn as sns
+from statsmodels.tsa.seasonal import seasonal_decompose
 
-# Set page configuration
+# Set up the page layout
 st.set_page_config(page_title="Advanced Influencer Impact Dashboard", layout="wide")
 
-# Title and Description
+# Title and introduction
 st.title("Advanced Influencer Impact on Brand Sales")
 st.markdown("""
 This advanced dashboard analyzes influencer marketing campaigns, providing insights on ROI, sales spikes, and time-series analysis.
 Track sales trends, calculate ROI, perform time variance analysis, and explore how influencer activities influence sales over time.
 """)
 
-# Sidebar for data upload
+# Sidebar upload
 st.sidebar.header("Upload Data")
 influencer_data_file = st.sidebar.file_uploader("Upload Influencer Data (CSV):", type=["csv"])
 
-# Function to load data
 def load_data(file):
     return pd.read_csv(file)
 
-# Process data if file is uploaded
+# Load and process data if uploaded
 if influencer_data_file:
     influencer_data = load_data(influencer_data_file)
-
-    # Ensure the 'Post Date' is in datetime format
     influencer_data['Post Date'] = pd.to_datetime(influencer_data['Post Date'], errors='coerce')
-
-    # Display uploaded data
-    with st.expander("View Uploaded Data"):
-        st.dataframe(influencer_data)
 
     # Key Metrics Overview
     st.header("Key Metrics Overview")
@@ -48,8 +39,9 @@ if influencer_data_file:
         "Total Campaign Costs ($)": total_campaign_cost,
         "Average ROI (%)": avg_roi,
     }
+
     st.write(pd.DataFrame(metrics, index=["Value"]).T)
-    st.write("")  # Add space between sections
+    st.write("")  # Add space
 
     # Influencer Impact Analysis
     st.header("Influencer Impact Analysis")
@@ -62,20 +54,20 @@ if influencer_data_file:
     }).reset_index()
 
     influencer_group = influencer_group.sort_values(by="ROI (%)", ascending=False)
-
+    
     st.subheader("Top Influencers by ROI")
     st.dataframe(influencer_group)
-    st.write("")  # Add space between sections
+    st.write("")  # Add space
 
-    # Bar Chart: ROI by Influencer
-    st.subheader("Bar Chart: Influencers vs ROI")
+    # ROI by Influencer Bar Chart
+    st.subheader("ROI by Influencer")
     roi_bar_chart = px.bar(
         influencer_group, x="Influencer ID", y="ROI (%)", color="ROI (%)", 
         title="ROI by Influencer", labels={"ROI (%)": "Return on Investment (%)"},
         color_continuous_scale="Blues"
     )
     st.plotly_chart(roi_bar_chart, use_container_width=True)
-    st.write("")  # Add space between sections
+    st.write("")  # Add space
 
     # Sales Spike vs ROI
     st.subheader("Sales Spike vs ROI")
@@ -84,7 +76,7 @@ if influencer_data_file:
         title="Sales Spike vs ROI", labels={"ROI (%)": "Return on Investment (%)"}
     )
     st.plotly_chart(sales_spike_vs_roi, use_container_width=True)
-    st.write("")  # Add space between sections
+    st.write("")  # Add space
 
     # Correlation Analysis
     st.header("Correlation Analysis")
@@ -93,19 +85,17 @@ if influencer_data_file:
         correlation_data, text_auto=True, color_continuous_scale="RdBu_r", title="Correlation Heatmap"
     )
     st.plotly_chart(correlation_fig, use_container_width=True)
-    st.write("")  # Add space between sections
+    st.write("")  # Add space
 
     # Time-Series Decomposition (Variance Analysis)
     st.header("Time-Series Decomposition (Variance Analysis)")
 
-    # Group by date and sum revenue to get a daily or weekly aggregation
     influencer_data_daily = influencer_data.groupby("Post Date").agg({
         "Revenue ($)": "sum"
     }).reset_index()
 
     influencer_data_daily.set_index("Post Date", inplace=True)
 
-    # Decompose the time series into Trend, Seasonal, and Residuals using statsmodels
     decomposition = seasonal_decompose(influencer_data_daily["Revenue ($)"], model="multiplicative", period=7)
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 8))
 
@@ -114,7 +104,7 @@ if influencer_data_file:
     decomposition.resid.plot(ax=ax3, title="Residuals Component", color="red")
 
     st.pyplot(fig)
-    st.write("")  # Add space between sections
+    st.write("")  # Add space
 
     st.markdown("""
     The time-series decomposition provides the following insights:
@@ -133,14 +123,14 @@ if influencer_data_file:
 
     st.subheader("Sales by Platform")
     st.dataframe(platform_group)
-    st.write("")  # Add space between sections
+    st.write("")  # Add space
 
     platform_bar_chart = px.bar(
         platform_group, x="Platform", y="Revenue ($)", color="Revenue ($)", title="Revenue by Platform",
         labels={"Revenue ($)": "Revenue ($)"}, color_continuous_scale="Viridis"
     )
     st.plotly_chart(platform_bar_chart, use_container_width=True)
-    st.write("")  # Add space between sections
+    st.write("")  # Add space
 
     # Engagement vs Sales by Platform
     st.subheader("Engagement vs Sales by Platform")
@@ -150,7 +140,7 @@ if influencer_data_file:
         labels={"Revenue ($)": "Revenue ($)", "Engagement Rate (%)": "Engagement Rate (%)"}
     )
     st.plotly_chart(engagement_sales_platform, use_container_width=True)
-    st.write("")  # Add space between sections
+    st.write("")  # Add space
 
     # Cost-Efficiency Analysis
     st.header("Cost-Efficiency Analysis")
@@ -159,7 +149,7 @@ if influencer_data_file:
         title="ROI vs Campaign Cost", labels={"Campaign Cost ($)": "Campaign Cost ($)", "ROI (%)": "Return on Investment (%)"}
     )
     st.plotly_chart(cost_efficiency_fig, use_container_width=True)
-    st.write("")  # Add space between sections
+    st.write("")  # Add space
 
     # Filters for Custom Analysis
     st.sidebar.header("Filters")
