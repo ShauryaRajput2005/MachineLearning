@@ -1,73 +1,142 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.express as px
+import numpy as np
 
-# Load data
-@st.cache_data
-def load_data():
-    # Replace 'influencer_data.csv' with your file path
-    data = pd.read_csv('influencer_brand_sales.csv')
-    return data
+# Set page configuration
+st.set_page_config(page_title="Influencer Impact Dashboard", layout="wide")
 
-data = load_data()
+# Title and Description
+st.title("Influencer Impact on Brand Sales")
+st.markdown("""
+Analyze the effectiveness of influencer marketing campaigns using this interactive dashboard. 
+Track sales trends, calculate ROI, and identify the top-performing influencers.
+""")
 
-# Streamlit App
-st.title("Influencer Impact on Brand Sales Dashboard")
+# Sidebar for data upload
+st.sidebar.header("Upload Data")
+social_data_file = st.sidebar.file_uploader("Upload Influencer Data (CSV):", type=["csv"])
+sales_data_file = st.sidebar.file_uploader("Upload Sales Data (CSV):", type=["csv"])
 
-# Filter options
-platforms = st.sidebar.multiselect("Select Platforms", data['Platform'].unique(), default=data['Platform'].unique())
-products = st.sidebar.multiselect("Select Products", data['Product ID'].unique(), default=data['Product ID'].unique())
+# Function to load data
+def load_data(file):
+    return pd.read_csv(file)
 
-# Filtered data
-filtered_data = data[(data['Platform'].isin(platforms)) & (data['Product ID'].isin(products))]
+# Process data if both files are uploaded
+if social_data_file and sales_data_file:
+    social_data = load_data(social_data_file)
+    sales_data = load_data(sales_data_file)
 
-# KPI Metrics
-st.header("Key Metrics")
-total_revenue = filtered_data['Revenue ($)'].sum()
-average_roi = filtered_data['ROI (%)'].mean()
-top_influencer = filtered_data.loc[filtered_data['Revenue ($)'].idxmax(), 'Influencer ID']
+    # Display uploaded data
+    with st.expander("View Uploaded Data"):
+        st.subheader("Influencer Data")
+        st.dataframe(social_data)
+        st.subheader("Sales Data")
+        st.dataframe(sales_data)
 
-col1, col2, col3 = st.columns(3)
-col1.metric("Total Revenue ($)", f"${total_revenue:,.2f}")
-col2.metric("Average ROI (%)", f"{average_roi:.2f}")
-col3.metric("Top Influencer", top_influencer)
+    # Merge data on a common key (e.g., timestamp)
+    merged_data = pd.merge(social_data, sales_data, on="timestamp", how="inner")
 
-# Bar chart: Revenue by influencer
-st.header("Revenue by Influencer")
-fig, ax = plt.subplots()
-filtered_data.groupby('Influencer ID')['Revenue ($)'].sum().sort_values().plot(kind='barh', ax=ax, color='skyblue')
-ax.set_title("Revenue by Influencer")
-ax.set_xlabel("Revenue ($)")
-ax.set_ylabel("Influencer ID")
-st.pyplot(fig)
+    # Display merged data
+    with st.expander("View Merged Data"):
+        st.dataframe(merged_data)
 
-# Scatter plot: ROI vs Engagement Rate
-st.header("ROI vs Engagement Rate")
-fig, ax = plt.subplots()
-ax.scatter(filtered_data['Engagement Rate (%)'], filtered_data['ROI (%)'], alpha=0.7, color='orange')
-ax.set_title("ROI vs Engagement Rate")
-ax.set_xlabel("Engagement Rate (%)")
-ax.set_ylabel("ROI (%)")
-st.pyplot(fig)
+    # Key Metrics Overview
+    st.header("Key Metrics Overview")
+    total_revenue = merged_data["sales"].sum()
+    total_units_sold = merged_data["units_sold"].sum()
+    total_campaign_cost = merged_data["campaign_cost"].sum() if "campaign_cost" in merged_data.columns else 0
+    avg_roi = (total_revenue / total_campaign_cost) if total_campaign_cost > 0 else 0
 
-# Sales Spike Analysis
-st.header("Sales Spike Analysis")
-sales_spike_counts = filtered_data['Sales Spike'].value_counts()
-fig, ax = plt.subplots()
-sales_spike_counts.plot(kind='pie', autopct='%1.1f%%', ax=ax, colors=['lightgreen', 'tomato'], labels=['No Spike', 'Spike'])
-ax.set_ylabel("")
-ax.set_title("Proportion of Sales Spikes")
-st.pyplot(fig)
+    metrics = {
+        "Total Revenue ($)": total_revenue,
+        "Total Units Sold": total_units_sold,
+        "Total Campaign Costs ($)": total_campaign_cost,
+        "Average ROI (%)": avg_roi * 100,
+    }
+    st.write(pd.DataFrame(metrics, index=["Value"]).T)
 
-# Data Table
-st.header("Filtered Data Table")
-st.dataframe(filtered_data)
+    # Influencer Impact Analysis
+    st.header("Influencer Impact Analysis")
+    influencer_group = merged_data.groupby("influencer_name").agg({
+        "units_sold": "sum",
+        "sales": "sum",
+        "campaign_cost": "sum",
+        "timestamp": "count"
+    }).reset_index()
+    influencer_group["ROI"] = (influencer_group["sales"] / influencer_group["campaign_cost"]) * 100
+    influencer_group = influencer_group.sort_values(by="ROI", ascending=False)
 
-# Download filtered data
-st.download_button(
-    label="Download Filtered Data as CSV",
-    data=filtered_data.to_csv(index=False),
-    file_name="filtered_influencer_data.csv",
-    mime="text/csv",
-)
+    st.subheader("Influencer Performance Table")
+    st.dataframe(influencer_group)
 
+    st.subheader("Bar Chart: ROI by Influencer")
+    roi_bar_chart = px.bar(
+        influencer_group, x="influencer_name", y="ROI", color="ROI", 
+        title="ROI by Influencer", labels={"ROI": "Return on Investment (%)"},
+        color_continuous_scale="Blues"
+    )
+    st.plotly_chart(roi_bar_chart, use_container_width=True)
+
+    # Correlation Analysis
+    st.header("Correlation Analysis")
+    correlation_data = merged_data[["sales", "engagement", "likes", "comments", "shares"]].corr()
+    correlation_fig = px.imshow(
+        correlation_data, text_auto=True, color_continuous_scale="RdBu_r", title="Correlation Heatmap"
+    )
+    st.plotly_chart(correlation_fig, use_container_width=True)
+
+    # Sales Trend Analysis
+    st.header("Sales Trend Analysis")
+    sales_trend_fig = px.line(
+        merged_data, x="timestamp", y="sales", title="Sales Trend Over Time", labels={"sales": "Revenue ($)"}
+    )
+    st.plotly_chart(sales_trend_fig, use_container_width=True)
+
+    # Platform Performance
+    st.header("Platform Performance")
+    if "platform" in merged_data.columns:
+        platform_group = merged_data.groupby("platform").agg({
+            "sales": "sum",
+            "units_sold": "sum",
+            "campaign_cost": "sum"
+        }).reset_index()
+        st.subheader("Platform Performance Table")
+        st.dataframe(platform_group)
+
+        platform_bar_chart = px.bar(
+            platform_group, x="platform", y="sales", color="sales", title="Revenue by Platform",
+            labels={"sales": "Revenue ($)"}, color_continuous_scale="Viridis"
+        )
+        st.plotly_chart(platform_bar_chart, use_container_width=True)
+
+    # Cost-Efficiency Analysis
+    st.header("Cost-Efficiency Analysis")
+    if "campaign_cost" in influencer_group.columns:
+        cost_efficiency_fig = px.scatter(
+            influencer_group, x="campaign_cost", y="ROI", color="ROI", size="units_sold",
+            title="ROI vs Campaign Cost", labels={"campaign_cost": "Campaign Cost ($)", "ROI": "Return on Investment (%)"}
+        )
+        st.plotly_chart(cost_efficiency_fig, use_container_width=True)
+
+    # Filters for Custom Analysis
+    st.sidebar.header("Filters")
+    selected_influencer = st.sidebar.selectbox("Select Influencer:", ["All"] + list(influencer_group["influencer_name"]))
+    selected_platform = st.sidebar.selectbox("Select Platform:", ["All"] + list(merged_data["platform"].unique() if "platform" in merged_data.columns else []))
+
+    if selected_influencer != "All":
+        merged_data = merged_data[merged_data["influencer_name"] == selected_influencer]
+
+    if selected_platform != "All":
+        merged_data = merged_data[merged_data["platform"] == selected_platform]
+
+    # Final Recommendations
+    st.header("Recommendations")
+    st.markdown("""
+    - Partner with influencers with the highest ROI for future campaigns.
+    - Focus on platforms that drive the most engagement and revenue.
+    - Analyze optimal posting times to align campaigns with periods of high sales.
+    """)
+
+else:
+    st.warning("Please upload both Influencer Data and Sales Data to proceed.")
