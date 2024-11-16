@@ -4,7 +4,7 @@ import plotly.express as px
 import matplotlib.pyplot as plt
 from statsmodels.tsa.seasonal import seasonal_decompose
 
-st.markdown(hide_st_style, unsafe_allow_html=True)
+
 
 # Set up the page layout
 st.set_page_config(page_title="Advanced Influencer Impact Dashboard", layout="wide")
