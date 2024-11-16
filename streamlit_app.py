@@ -49,6 +49,7 @@ if influencer_data_file:
         "Average ROI (%)": avg_roi,
     }
     st.write(pd.DataFrame(metrics, index=["Value"]).T)
+    st.write("")  # Add space between sections
 
     # Influencer Impact Analysis
     st.header("Influencer Impact Analysis")
@@ -64,6 +65,7 @@ if influencer_data_file:
 
     st.subheader("Top Influencers by ROI")
     st.dataframe(influencer_group)
+    st.write("")  # Add space between sections
 
     # Bar Chart: ROI by Influencer
     st.subheader("Bar Chart: Influencers vs ROI")
@@ -73,6 +75,7 @@ if influencer_data_file:
         color_continuous_scale="Blues"
     )
     st.plotly_chart(roi_bar_chart, use_container_width=True)
+    st.write("")  # Add space between sections
 
     # Sales Spike vs ROI
     st.subheader("Sales Spike vs ROI")
@@ -81,6 +84,7 @@ if influencer_data_file:
         title="Sales Spike vs ROI", labels={"ROI (%)": "Return on Investment (%)"}
     )
     st.plotly_chart(sales_spike_vs_roi, use_container_width=True)
+    st.write("")  # Add space between sections
 
     # Correlation Analysis
     st.header("Correlation Analysis")
@@ -89,6 +93,7 @@ if influencer_data_file:
         correlation_data, text_auto=True, color_continuous_scale="RdBu_r", title="Correlation Heatmap"
     )
     st.plotly_chart(correlation_fig, use_container_width=True)
+    st.write("")  # Add space between sections
 
     # Time-Series Decomposition (Variance Analysis)
     st.header("Time-Series Decomposition (Variance Analysis)")
@@ -109,6 +114,7 @@ if influencer_data_file:
     decomposition.resid.plot(ax=ax3, title="Residuals Component", color="red")
 
     st.pyplot(fig)
+    st.write("")  # Add space between sections
 
     st.markdown("""
     The time-series decomposition provides the following insights:
@@ -127,12 +133,14 @@ if influencer_data_file:
 
     st.subheader("Sales by Platform")
     st.dataframe(platform_group)
+    st.write("")  # Add space between sections
 
     platform_bar_chart = px.bar(
         platform_group, x="Platform", y="Revenue ($)", color="Revenue ($)", title="Revenue by Platform",
         labels={"Revenue ($)": "Revenue ($)"}, color_continuous_scale="Viridis"
     )
     st.plotly_chart(platform_bar_chart, use_container_width=True)
+    st.write("")  # Add space between sections
 
     # Engagement vs Sales by Platform
     st.subheader("Engagement vs Sales by Platform")
@@ -142,6 +150,7 @@ if influencer_data_file:
         labels={"Revenue ($)": "Revenue ($)", "Engagement Rate (%)": "Engagement Rate (%)"}
     )
     st.plotly_chart(engagement_sales_platform, use_container_width=True)
+    st.write("")  # Add space between sections
 
     # Cost-Efficiency Analysis
     st.header("Cost-Efficiency Analysis")
@@ -150,6 +159,7 @@ if influencer_data_file:
         title="ROI vs Campaign Cost", labels={"Campaign Cost ($)": "Campaign Cost ($)", "ROI (%)": "Return on Investment (%)"}
     )
     st.plotly_chart(cost_efficiency_fig, use_container_width=True)
+    st.write("")  # Add space between sections
 
     # Filters for Custom Analysis
     st.sidebar.header("Filters")
