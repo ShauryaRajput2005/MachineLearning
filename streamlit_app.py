@@ -2,15 +2,18 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import numpy as np
+from statsmodels.tsa.seasonal import seasonal_decompose
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Set page configuration
-st.set_page_config(page_title="Influencer Impact Dashboard", layout="wide")
+st.set_page_config(page_title="Advanced Influencer Impact Dashboard", layout="wide")
 
 # Title and Description
-st.title("Influencer Impact on Brand Sales")
+st.title("Advanced Influencer Impact on Brand Sales")
 st.markdown("""
-Analyze the effectiveness of influencer marketing campaigns using this interactive dashboard. 
-Track sales trends, calculate ROI, and identify the top-performing influencers.
+This advanced dashboard analyzes influencer marketing campaigns with added time variance analysis, seasonality decomposition, and advanced trend analysis.
+Track sales trends, calculate ROI, perform time variance analysis, and explore how influencer activities influence sales over time.
 """)
 
 # Sidebar for data upload
@@ -84,6 +87,32 @@ if influencer_data_file:
         influencer_data, x="Post Date", y="Revenue ($)", title="Sales Trend Over Time", labels={"Revenue ($)": "Revenue ($)"}
     )
     st.plotly_chart(sales_trend_fig, use_container_width=True)
+
+    # Time-Series Decomposition (Seasonality, Trend, and Residuals)
+    st.header("Time-Series Decomposition (Variance Analysis)")
+    # Group by date and sum revenue to get a daily or weekly aggregation
+    influencer_data_daily = influencer_data.groupby("Post Date").agg({
+        "Revenue ($)": "sum"
+    }).reset_index()
+
+    influencer_data_daily.set_index("Post Date", inplace=True)
+
+    # Decompose the time series into Trend, Seasonal, and Residuals using statsmodels
+    decomposition = seasonal_decompose(influencer_data_daily["Revenue ($)"], model="multiplicative", period=7)
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 8))
+
+    decomposition.trend.plot(ax=ax1, title="Trend Component", color="blue")
+    decomposition.seasonal.plot(ax=ax2, title="Seasonality Component", color="green")
+    decomposition.resid.plot(ax=ax3, title="Residuals Component", color="red")
+
+    st.pyplot(fig)
+
+    st.markdown("""
+    The time-series decomposition provides the following insights:
+    - **Trend Component**: Represents the overall sales trend over time.
+    - **Seasonality Component**: Captures repeating patterns, e.g., weekly or monthly cycles.
+    - **Residuals Component**: Shows the random noise or residuals after removing trend and seasonality.
+    """)
 
     # Platform Performance
     st.header("Platform Performance")
