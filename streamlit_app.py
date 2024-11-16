@@ -12,7 +12,7 @@ st.set_page_config(page_title="Advanced Influencer Impact Dashboard", layout="wi
 # Title and Description
 st.title("Advanced Influencer Impact on Brand Sales")
 st.markdown("""
-This advanced dashboard analyzes influencer marketing campaigns with added time variance analysis, seasonality decomposition, and advanced trend analysis.
+This advanced dashboard analyzes influencer marketing campaigns, providing insights on ROI, sales spikes, and time-series analysis.
 Track sales trends, calculate ROI, perform time variance analysis, and explore how influencer activities influence sales over time.
 """)
 
@@ -62,16 +62,25 @@ if influencer_data_file:
 
     influencer_group = influencer_group.sort_values(by="ROI (%)", ascending=False)
 
-    st.subheader("Influencer Performance Table")
+    st.subheader("Top Influencers by ROI")
     st.dataframe(influencer_group)
 
-    st.subheader("Bar Chart: ROI by Influencer")
+    # Bar Chart: ROI by Influencer
+    st.subheader("Bar Chart: Influencers vs ROI")
     roi_bar_chart = px.bar(
         influencer_group, x="Influencer ID", y="ROI (%)", color="ROI (%)", 
         title="ROI by Influencer", labels={"ROI (%)": "Return on Investment (%)"},
         color_continuous_scale="Blues"
     )
     st.plotly_chart(roi_bar_chart, use_container_width=True)
+
+    # Sales Spike vs ROI
+    st.subheader("Sales Spike vs ROI")
+    sales_spike_vs_roi = px.box(
+        influencer_group, x="Sales Spike", y="ROI (%)", 
+        title="Sales Spike vs ROI", labels={"ROI (%)": "Return on Investment (%)"}
+    )
+    st.plotly_chart(sales_spike_vs_roi, use_container_width=True)
 
     # Correlation Analysis
     st.header("Correlation Analysis")
@@ -81,15 +90,9 @@ if influencer_data_file:
     )
     st.plotly_chart(correlation_fig, use_container_width=True)
 
-    # Sales Trend Analysis
-    st.header("Sales Trend Analysis")
-    sales_trend_fig = px.line(
-        influencer_data, x="Post Date", y="Revenue ($)", title="Sales Trend Over Time", labels={"Revenue ($)": "Revenue ($)"}
-    )
-    st.plotly_chart(sales_trend_fig, use_container_width=True)
-
-    # Time-Series Decomposition (Seasonality, Trend, and Residuals)
+    # Time-Series Decomposition (Variance Analysis)
     st.header("Time-Series Decomposition (Variance Analysis)")
+
     # Group by date and sum revenue to get a daily or weekly aggregation
     influencer_data_daily = influencer_data.groupby("Post Date").agg({
         "Revenue ($)": "sum"
@@ -122,7 +125,7 @@ if influencer_data_file:
         "Campaign Cost ($)": "sum"
     }).reset_index()
 
-    st.subheader("Platform Performance Table")
+    st.subheader("Sales by Platform")
     st.dataframe(platform_group)
 
     platform_bar_chart = px.bar(
@@ -130,6 +133,15 @@ if influencer_data_file:
         labels={"Revenue ($)": "Revenue ($)"}, color_continuous_scale="Viridis"
     )
     st.plotly_chart(platform_bar_chart, use_container_width=True)
+
+    # Engagement vs Sales by Platform
+    st.subheader("Engagement vs Sales by Platform")
+    engagement_sales_platform = px.scatter(
+        influencer_data, x="Engagement Rate (%)", y="Revenue ($)", color="Platform", 
+        size="Units Sold", title="Engagement vs Sales by Platform",
+        labels={"Revenue ($)": "Revenue ($)", "Engagement Rate (%)": "Engagement Rate (%)"}
+    )
+    st.plotly_chart(engagement_sales_platform, use_container_width=True)
 
     # Cost-Efficiency Analysis
     st.header("Cost-Efficiency Analysis")
@@ -151,7 +163,7 @@ if influencer_data_file:
         influencer_data = influencer_data[influencer_data["Platform"] == selected_platform]
 
     # Final Recommendations
-    st.header("Recommendations")
+    st.header("Summary & Recommendations")
     st.markdown("""
     - Partner with influencers with the highest ROI for future campaigns.
     - Focus on platforms that drive the most engagement and revenue.
